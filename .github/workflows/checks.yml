@@ -19,8 +19,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "26"
+          cache: "npm"
       - run: rustup toolchain install 1.95.0 --component clippy --no-self-update
       - run: rustup default 1.95.0
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
       - run: npm install
       - name: oxlint
         run: npm exec oxlint -- src/
@@ -34,8 +38,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "26"
+          cache: "npm"
       - run: rustup toolchain install 1.95.0 --component rustfmt --no-self-update
       - run: rustup default 1.95.0
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
       - run: npm install
       - name: oxfmt
         run: npm exec oxfmt -- src/
@@ -51,8 +59,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "26"
+          cache: "npm"
       - run: rustup toolchain install 1.95.0 --no-self-update
       - run: rustup default 1.95.0
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
       - run: npm install
       - name: tauri build
         run: npm run tauri build
