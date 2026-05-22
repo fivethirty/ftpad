@@ -1,9 +1,8 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [created]
 
 jobs:
   release:
@@ -30,8 +29,9 @@ jobs:
       - name: tauri build
         run: npm run tauri build
 
-      - name: Create Release
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
-        with:
-          files: src-tauri/target/release/bundle/dmg/*.dmg
-          generate_release_notes: true
+      - name: upload dmg
+        run: |
+          VERSION=${{ github.event.release.tag_name }}
+          gh release upload ${VERSION} "src-tauri/target/release/bundle/dmg/ftpad_${VERSION#v}_aarch64.dmg"
+        env:
+          GH_TOKEN: ${{ github.token }}
