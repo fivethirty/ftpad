@@ -1,6 +1,6 @@
 [package]
 name = "ftpad"
-version = "0.1.0"
+version = "0.2.0"
 description = "the fivethirty pad"
 authors = ["fivethirty"]
 edition = "2021"
