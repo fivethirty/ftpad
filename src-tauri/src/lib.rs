@@ -66,7 +66,8 @@ pub fn run() {
                     }
                 })?;
 
-            let open = MenuItem::with_id(app, "open", "Open ftpad", true, Some("Ctrl+Shift+Space"))?;
+            let open =
+                MenuItem::with_id(app, "open", "Open ftpad", true, Some("Ctrl+Shift+Space"))?;
             let separator = PredefinedMenuItem::separator(app)?;
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&open, &separator, &quit])?;
