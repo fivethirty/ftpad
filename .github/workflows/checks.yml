@@ -1,0 +1,58 @@
+name: Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+      - run: rustup toolchain install 1.95.0 --component clippy --no-self-update
+      - run: rustup default 1.95.0
+      - run: npm install
+      - name: oxlint
+        run: npm exec oxlint -- src/
+      - name: cargo clippy
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
+
+  format:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+      - run: rustup toolchain install 1.95.0 --component rustfmt --no-self-update
+      - run: rustup default 1.95.0
+      - run: npm install
+      - name: oxfmt
+        run: npm exec oxfmt -- src/
+      - name: cargo fmt
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml
+      - name: check diff
+        run: git diff --exit-code
+
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+      - run: rustup toolchain install 1.95.0 --no-self-update
+      - run: rustup default 1.95.0
+      - run: npm install
+      - name: tauri build
+        run: npm run tauri build
