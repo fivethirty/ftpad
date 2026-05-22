@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+
+      - run: rustup toolchain install 1.95.0 --no-self-update
+      - run: rustup default 1.95.0
+
+      - run: npm install
+
+      - name: tauri build
+        run: npm run tauri build
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: src-tauri/target/release/bundle/dmg/*.dmg
+          generate_release_notes: true
