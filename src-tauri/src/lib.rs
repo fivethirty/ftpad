@@ -1,6 +1,6 @@
 use tauri::{
-    menu::{Menu, MenuItem},
-    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    menu::{Menu, MenuItem, PredefinedMenuItem},
+    tray::{TrayIconBuilder, TrayIconEvent},
     Manager,
 };
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
@@ -66,36 +66,26 @@ pub fn run() {
                     }
                 })?;
 
-            let quit = MenuItem::with_id(app, "quit", "Quit ftpad", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&quit])?;
+            let open = MenuItem::with_id(app, "open", "Open ftpad", true, Some("Ctrl+Shift+Space"))?;
+            let separator = PredefinedMenuItem::separator(app)?;
+            let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+            let menu = Menu::with_items(app, &[&open, &separator, &quit])?;
 
             let tray = TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
                 .icon_as_template(true)
                 .menu(&menu)
-                .on_menu_event(|app, event| {
-                    if event.id() == "quit" {
-                        app.exit(0);
-                    }
-                })
-                .on_tray_icon_event(|tray, event| {
-                    if let TrayIconEvent::Click {
-                        button: MouseButton::Left,
-                        button_state: MouseButtonState::Up,
-                        ..
-                    } = event
-                    {
-                        let app = tray.app_handle();
+                .on_menu_event(|app, event| match event.id().as_ref() {
+                    "open" => {
                         if let Some(window) = app.get_webview_window("main") {
-                            if window.is_visible().unwrap_or(false) {
-                                let _ = window.hide();
-                            } else {
-                                let _ = window.show();
-                                let _ = window.set_focus();
-                            }
+                            let _ = window.show();
+                            let _ = window.set_focus();
                         }
                     }
+                    "quit" => app.exit(0),
+                    _ => {}
                 })
+                .on_tray_icon_event(|_tray, _event| {})
                 .build(app)?;
 
             let _ = tray;
