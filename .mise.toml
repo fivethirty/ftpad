@@ -1,3 +1,17 @@
 [tools]
 node = "26"
 rust = "1.95.0"
+
+[tasks.fmt]
+description = "Format all files"
+run = [
+  "npm exec oxfmt -- src/",
+  "cargo fmt --manifest-path src-tauri/Cargo.toml",
+]
+
+[tasks.lint]
+description = "Lint all files"
+run = [
+  "npm exec oxlint -- src/",
+  "cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings",
+]
