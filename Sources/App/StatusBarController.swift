@@ -33,7 +33,8 @@ class StatusBarController: NSObject {
             open.keyEquivalentModifierMask = [.control, .shift]
             open.target = self
             menu.addItem(.separator())
-            let about = menu.addItem(withTitle: "ftpad \(buildSHA)", action: nil, keyEquivalent: "")
+            let sha = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+            let about = menu.addItem(withTitle: "ftpad \(sha)", action: nil, keyEquivalent: "")
             about.isEnabled = false
             menu.addItem(.separator())
             menu.addItem(withTitle: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "")

@@ -12,6 +12,8 @@
     <string>AppIcon</string>
     <key>CFBundleShortVersionString</key>
     <string>0.2.0</string>
+    <key>CFBundleVersion</key>
+    <string>{{BUILD_SHA}}</string>
     <key>LSUIElement</key>
     <true/>
     <key>NSHighResolutionCapable</key>
