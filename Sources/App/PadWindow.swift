@@ -15,13 +15,19 @@ class PadWindow: NSObject, NSWindowDelegate {
             defer: false
         )
 
-        let scrollView = NSScrollView()
+        let scrollView = NSScrollView(frame: window.contentView!.bounds)
+        scrollView.autoresizingMask = [.width, .height]
         scrollView.hasVerticalScroller = true
         scrollView.drawsBackground = false
         scrollView.automaticallyAdjustsContentInsets = false
         scrollView.contentInsets = NSEdgeInsetsZero
 
-        textView = NSTextView()
+        textView = NSTextView(frame: scrollView.bounds)
+        textView.autoresizingMask = [.width, .height]
+        textView.font = config.resolvedFont
+        textView.backgroundColor = config.resolvedBackgroundColor
+        textView.textColor = config.resolvedTextColor
+        textView.insertionPointColor = .white
         textView.isRichText = false
         textView.allowsUndo = true
         textView.isAutomaticQuoteSubstitutionEnabled = false
@@ -29,6 +35,10 @@ class PadWindow: NSObject, NSWindowDelegate {
         textView.isAutomaticSpellingCorrectionEnabled = false
         textView.textContainer?.lineFragmentPadding = 0
         textView.textContainerInset = NSSize(width: 12, height: 12)
+        textView.selectedTextAttributes = [
+            .backgroundColor: NSColor(white: 1.0, alpha: 0.15),
+            .foregroundColor: config.resolvedTextColor,
+        ]
         textView.string = UserDefaults.standard.string(forKey: "ftpad-content") ?? ""
 
         scrollView.documentView = textView
@@ -37,15 +47,17 @@ class PadWindow: NSObject, NSWindowDelegate {
 
         window.title = ""
         window.titlebarAppearsTransparent = true
-        window.isMovableByWindowBackground = true
+        window.isMovableByWindowBackground = false
+        window.isMovable = false
+        window.setFrameAutosaveName("")
+        window.center()
         window.delegate = self
-        window.contentView = scrollView
+        window.backgroundColor = config.resolvedBackgroundColor
+        window.contentView?.addSubview(scrollView)
 
         for btn in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] {
             window.standardWindowButton(btn)?.isHidden = true
         }
-
-        apply(config: config)
 
         NotificationCenter.default.addObserver(
             self,
@@ -82,10 +94,6 @@ class PadWindow: NSObject, NSWindowDelegate {
         textView.backgroundColor = config.resolvedBackgroundColor
         textView.textColor = config.resolvedTextColor
         textView.insertionPointColor = .white
-        textView.selectedTextAttributes = [
-            .backgroundColor: NSColor(white: 1.0, alpha: 0.15),
-            .foregroundColor: config.resolvedTextColor,
-        ]
         window.backgroundColor = config.resolvedBackgroundColor
     }
 
@@ -93,11 +101,6 @@ class PadWindow: NSObject, NSWindowDelegate {
         UserDefaults.standard.set(textView.string, forKey: "ftpad-content")
     }
 
-    func windowDidResignKey(_: Notification) {
-        hide()
-    }
-
-    func windowShouldClose(_: NSWindow) -> Bool {
-        hide(); return false
-    }
+    func windowDidResignKey(_: Notification) { hide() }
+    func windowShouldClose(_: NSWindow) -> Bool { hide(); return false }
 }
