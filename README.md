@@ -1,6 +1,6 @@
 # ftpad
 
-A very dumb notepad for macOS.
+![screenshot](screenshot.png)
 
 ## Use
 
