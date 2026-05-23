@@ -16,7 +16,7 @@ class PadWindow: NSObject, NSWindowDelegate {
             defer: false
         )
 
-        scrollView = NSScrollView(frame: window.contentView!.bounds)
+        scrollView = NSScrollView(frame: .zero)
         scrollView.autoresizingMask = [.width, .height]
         scrollView.hasVerticalScroller = true
         scrollView.scrollerKnobStyle = config.resolvedScrollerKnobStyle
@@ -89,7 +89,7 @@ class PadWindow: NSObject, NSWindowDelegate {
     }
 
     func toggle() {
-        window.isVisible ? hide() : show()
+        if window.isVisible { hide() } else { show() }
     }
 
     func apply(config: Config) {
@@ -109,6 +109,11 @@ class PadWindow: NSObject, NSWindowDelegate {
         UserDefaults.standard.set(textView.string, forKey: "ftpad-content")
     }
 
-    func windowDidResignKey(_: Notification) { hide() }
-    func windowShouldClose(_: NSWindow) -> Bool { hide(); return false }
+    func windowDidResignKey(_: Notification) {
+        hide()
+    }
+
+    func windowShouldClose(_: NSWindow) -> Bool {
+        hide(); return false
+    }
 }

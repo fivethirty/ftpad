@@ -39,7 +39,7 @@ public struct Config: Codable, Sendable {
     }
 
     public var resolvedFont: NSFont {
-        let size = fontSize ?? Config.defaults.fontSize!
+        let size = fontSize ?? 14
         guard let name = font else {
             return NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
         }
@@ -48,17 +48,17 @@ public struct Config: Codable, Sendable {
     }
 
     public var resolvedBackgroundColor: NSColor {
-        colorFromHex(backgroundColor ?? Config.defaults.backgroundColor!)
+        colorFromHex(backgroundColor ?? "#1e1e1e")
             ?? NSColor(red: 0.118, green: 0.118, blue: 0.118, alpha: 1)
     }
 
     public var resolvedTextColor: NSColor {
-        colorFromHex(textColor ?? Config.defaults.textColor!)
+        colorFromHex(textColor ?? "#d4d4d4")
             ?? NSColor(red: 0.831, green: 0.831, blue: 0.831, alpha: 1)
     }
 
     public var resolvedShortcut: (keyCode: UInt32, modifiers: UInt32) {
-        let parts = (shortcut ?? Config.defaults.shortcut!)
+        let parts = (shortcut ?? "ctrl+shift+space")
             .lowercased()
             .split(separator: "+")
             .map(String.init)
@@ -110,9 +110,7 @@ private func keyCodeForCharacter(_ character: String) -> UInt32? {
             0, UInt32(LMGetKbdType()), OptionBits(kUCKeyTranslateNoDeadKeysBit),
             &deadKeys, 4, &length, &chars
         )
-        if length > 0,
-           String(utf16CodeUnits: chars, count: length).lowercased() == character
-        {
+        if length > 0, String(utf16CodeUnits: chars, count: length).lowercased() == character {
             return UInt32(code)
         }
     }

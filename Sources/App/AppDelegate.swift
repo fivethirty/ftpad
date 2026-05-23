@@ -32,11 +32,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
 
-        let fd = open(dir.path, O_EVTONLY)
-        guard fd >= 0 else { return }
+        let fileDescriptor = open(dir.path, O_EVTONLY)
+        guard fileDescriptor >= 0 else { return }
 
         let source = DispatchSource.makeFileSystemObjectSource(
-            fileDescriptor: fd,
+            fileDescriptor: fileDescriptor,
             eventMask: .write,
             queue: .main
         )
@@ -48,7 +48,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             hotkey?.update(config: config)
         }
 
-        source.setCancelHandler { close(fd) }
+        source.setCancelHandler { close(fileDescriptor) }
         source.resume()
         configWatcher = source
     }

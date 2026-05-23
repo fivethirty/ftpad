@@ -1,7 +1,7 @@
-import Testing
 import AppKit
 import Carbon.HIToolbox
 @testable import ftpadCore
+import Testing
 
 @Suite("Config decoding")
 struct ConfigTests {
@@ -18,12 +18,12 @@ struct ConfigTests {
     @Test func resolvedColorsParseHex() throws {
         let json = ##"{"backgroundColor": "#ff8000", "textColor": "#1e1e1e"}"##
         let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-        let bg = config.resolvedBackgroundColor
-        #expect(abs(bg.redComponent - 1.0) < 0.01)
-        #expect(abs(bg.greenComponent - 0.502) < 0.01)
-        #expect(abs(bg.blueComponent - 0.0) < 0.01)
-        let fg = config.resolvedTextColor
-        #expect(abs(fg.redComponent - 0.118) < 0.01)
+        let bgColor = config.resolvedBackgroundColor
+        #expect(abs(bgColor.redComponent - 1.0) < 0.01)
+        #expect(abs(bgColor.greenComponent - 0.502) < 0.01)
+        #expect(abs(bgColor.blueComponent - 0.0) < 0.01)
+        let fgColor = config.resolvedTextColor
+        #expect(abs(fgColor.redComponent - 0.118) < 0.01)
     }
 
     @Test func invalidHexFallsBackToDefault() throws {
@@ -50,18 +50,18 @@ struct ConfigTests {
 @Suite("Shortcut parsing")
 struct ShortcutTests {
     @Test func defaultShortcutHasCorrectModifiers() {
-        let s = Config().resolvedShortcut
-        #expect(s.keyCode == 49) // kVK_Space
-        #expect(s.modifiers & UInt32(controlKey) != 0)
-        #expect(s.modifiers & UInt32(shiftKey) != 0)
+        let shortcut = Config().resolvedShortcut
+        #expect(shortcut.keyCode == 49) // kVK_Space
+        #expect(shortcut.modifiers & UInt32(controlKey) != 0)
+        #expect(shortcut.modifiers & UInt32(shiftKey) != 0)
     }
 
     @Test func cmdModifierParsed() throws {
         let json = #"{"shortcut": "cmd+space"}"#
         let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-        let s = config.resolvedShortcut
-        #expect(s.modifiers & UInt32(cmdKey) != 0)
-        #expect(s.modifiers & UInt32(controlKey) == 0)
+        let shortcut = config.resolvedShortcut
+        #expect(shortcut.modifiers & UInt32(cmdKey) != 0)
+        #expect(shortcut.modifiers & UInt32(controlKey) == 0)
     }
 
     @Test func unknownKeyFallsBackToSpace() throws {
