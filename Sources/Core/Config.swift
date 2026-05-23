@@ -6,47 +6,54 @@ public struct Config: Codable, Sendable {
     public var fontSize: CGFloat?
     public var backgroundColor: String?
     public var textColor: String?
+    public var lightScrollbar: Bool?
     public var shortcut: String?
     public var width: CGFloat?
     public var height: CGFloat?
 
     public static let defaults = Config(
-        font: "JetBrainsMonoNF-Regular",
+        font: nil,
         fontSize: 14,
         backgroundColor: "#1e1e1e",
         textColor: "#d4d4d4",
+        lightScrollbar: true,
         shortcut: "ctrl+shift+space",
         width: 700,
         height: 500
     )
 
+    public var resolvedScrollerKnobStyle: NSScroller.KnobStyle {
+        (lightScrollbar ?? true) ? .light : .dark
+    }
+
     public static func load() -> Config {
         let path = FileManager.default
             .homeDirectoryForCurrentUser
             .appendingPathComponent(".config/ftpad/config.json")
+        guard let data = try? Data(contentsOf: path) else { return Config() }
+        return load(from: data)
+    }
 
-        guard let data = try? Data(contentsOf: path),
-              let config = try? JSONDecoder().decode(Config.self, from: data)
-        else {
-            return Config()
-        }
-        return config
+    public static func load(from data: Data) -> Config {
+        (try? JSONDecoder().decode(Config.self, from: data)) ?? Config()
     }
 
     public var resolvedFont: NSFont {
-        let name = font ?? Config.defaults.font!
         let size = fontSize ?? Config.defaults.fontSize!
+        guard let name = font else {
+            return NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
+        }
         return NSFont(name: name, size: size)
             ?? NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
     }
 
     public var resolvedBackgroundColor: NSColor {
-        NSColor(hex: backgroundColor ?? Config.defaults.backgroundColor!)
+        colorFromHex(backgroundColor ?? Config.defaults.backgroundColor!)
             ?? NSColor(red: 0.118, green: 0.118, blue: 0.118, alpha: 1)
     }
 
     public var resolvedTextColor: NSColor {
-        NSColor(hex: textColor ?? Config.defaults.textColor!)
+        colorFromHex(textColor ?? Config.defaults.textColor!)
             ?? NSColor(red: 0.831, green: 0.831, blue: 0.831, alpha: 1)
     }
 
@@ -75,7 +82,18 @@ public struct Config: Codable, Sendable {
     }
 }
 
-public func keyCodeForCharacter(_ character: String) -> UInt32? {
+private func colorFromHex(_ hex: String) -> NSColor? {
+    let hex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+    guard hex.count == 6, let value = UInt64(hex, radix: 16) else { return nil }
+    return NSColor(
+        red: CGFloat((value >> 16) & 0xFF) / 255,
+        green: CGFloat((value >> 8) & 0xFF) / 255,
+        blue: CGFloat(value & 0xFF) / 255,
+        alpha: 1
+    )
+}
+
+private func keyCodeForCharacter(_ character: String) -> UInt32? {
     guard let source = TISCopyCurrentKeyboardInputSource()?.takeRetainedValue(),
           let layoutData = TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData)
     else { return nil }

@@ -13,8 +13,9 @@ class StatusBarController: NSObject {
         super.init()
 
         guard let button = statusItem.button else { return }
-        button.title = "~"
-        button.font = NSFont(name: "JetBrainsMonoNF-Regular", size: 16)
+        let image = StatusBarController.tildeImage()
+        statusItem.length = image.size.width - 6
+        button.image = image
         button.target = self
         button.action = #selector(handleClick(_:))
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
@@ -43,5 +44,18 @@ class StatusBarController: NSObject {
 
     @objc private func handleOpen() {
         onShow()
+    }
+
+    private static func tildeImage() -> NSImage {
+        let font = NSFont.monospacedSystemFont(ofSize: 16, weight: .regular)
+        let attrs: [NSAttributedString.Key: Any] = [.font: font]
+        let str = "[~]" as NSString
+        let size = str.size(withAttributes: attrs)
+        let image = NSImage(size: size, flipped: false) { rect in
+            str.draw(at: .zero, withAttributes: attrs)
+            return true
+        }
+        image.isTemplate = true
+        return image
     }
 }

@@ -4,6 +4,7 @@ import ftpadCore
 @MainActor
 class PadWindow: NSObject, NSWindowDelegate {
     private let window: NSWindow
+    private let scrollView: NSScrollView
     private let textView: NSTextView
     private var localMonitor: Any?
 
@@ -15,9 +16,10 @@ class PadWindow: NSObject, NSWindowDelegate {
             defer: false
         )
 
-        let scrollView = NSScrollView(frame: window.contentView!.bounds)
+        scrollView = NSScrollView(frame: window.contentView!.bounds)
         scrollView.autoresizingMask = [.width, .height]
         scrollView.hasVerticalScroller = true
+        scrollView.scrollerKnobStyle = config.resolvedScrollerKnobStyle
         scrollView.drawsBackground = false
         scrollView.automaticallyAdjustsContentInsets = false
         scrollView.contentInsets = NSEdgeInsetsZero
@@ -36,7 +38,7 @@ class PadWindow: NSObject, NSWindowDelegate {
         textView.textContainer?.lineFragmentPadding = 0
         textView.textContainerInset = NSSize(width: 12, height: 12)
         textView.selectedTextAttributes = [
-            .backgroundColor: NSColor(white: 1.0, alpha: 0.15),
+            .backgroundColor: config.resolvedTextColor.withAlphaComponent(0.15),
             .foregroundColor: config.resolvedTextColor,
         ]
         textView.string = UserDefaults.standard.string(forKey: "ftpad-content") ?? ""
@@ -49,6 +51,7 @@ class PadWindow: NSObject, NSWindowDelegate {
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = false
         window.isMovable = false
+        window.collectionBehavior = .moveToActiveSpace
         window.setFrameAutosaveName("")
         window.center()
         window.delegate = self
@@ -94,7 +97,12 @@ class PadWindow: NSObject, NSWindowDelegate {
         textView.backgroundColor = config.resolvedBackgroundColor
         textView.textColor = config.resolvedTextColor
         textView.insertionPointColor = .white
+        textView.selectedTextAttributes = [
+            .backgroundColor: config.resolvedTextColor.withAlphaComponent(0.15),
+            .foregroundColor: config.resolvedTextColor,
+        ]
         window.backgroundColor = config.resolvedBackgroundColor
+        scrollView.scrollerKnobStyle = config.resolvedScrollerKnobStyle
     }
 
     @objc private func textDidChange() {

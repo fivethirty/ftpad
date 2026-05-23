@@ -3,10 +3,10 @@ import ftpadCore
 
 class HotkeyManager {
     private var hotKeyRef: EventHotKeyRef?
-    private let handler: @Sendable () -> Void
+    @MainActor private static var currentHandler: (@Sendable () -> Void)?
 
     init(config: Config, handler: @Sendable @escaping () -> Void) {
-        self.handler = handler
+        MainActor.assumeIsolated { HotkeyManager.currentHandler = handler }
         installEventHandler()
         register(config: config)
     }
@@ -27,10 +27,9 @@ class HotkeyManager {
     }
 
     private func unregister() {
-        if let ref = hotKeyRef {
-            UnregisterEventHotKey(ref)
-            hotKeyRef = nil
-        }
+        guard let ref = hotKeyRef else { return }
+        UnregisterEventHotKey(ref)
+        hotKeyRef = nil
     }
 
     private func installEventHandler() {
@@ -38,16 +37,15 @@ class HotkeyManager {
             eventClass: OSType(kEventClassKeyboard),
             eventKind: UInt32(kEventHotKeyPressed)
         )
-        let selfPtr = Unmanaged.passUnretained(self).toOpaque()
         InstallEventHandler(
             GetApplicationEventTarget(),
-            { _, _, userData -> OSStatus in
-                guard let ptr = userData else { return noErr }
-                let handler = Unmanaged<HotkeyManager>.fromOpaque(ptr).takeUnretainedValue().handler
-                DispatchQueue.main.async { handler() }
+            { _, _, _ -> OSStatus in
+                DispatchQueue.main.async {
+                    HotkeyManager.currentHandler?()
+                }
                 return noErr
             },
-            1, &eventSpec, selfPtr, nil
+            1, &eventSpec, nil, nil
         )
     }
 }

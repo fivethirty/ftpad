@@ -1,38 +1,10 @@
 import Testing
 import AppKit
+import Carbon.HIToolbox
 @testable import ftpadCore
-
-@Suite("NSColor hex parsing")
-struct ColorTests {
-    @Test func validHexWithHash() {
-        #expect(NSColor(hex: "#1e1e1e") != nil)
-    }
-
-    @Test func validHexWithoutHash() {
-        #expect(NSColor(hex: "d4d4d4") != nil)
-    }
-
-    @Test func invalidHex() {
-        #expect(NSColor(hex: "gg0000") == nil)
-        #expect(NSColor(hex: "12345") == nil)
-        #expect(NSColor(hex: "") == nil)
-    }
-
-    @Test func correctChannels() throws {
-        let color = try #require(NSColor(hex: "#ff8000"))
-        #expect(abs(color.redComponent - 1.0) < 0.01)
-        #expect(abs(color.greenComponent - 0.502) < 0.01)
-        #expect(abs(color.blueComponent - 0.0) < 0.01)
-    }
-}
 
 @Suite("Config decoding")
 struct ConfigTests {
-    @Test func emptyConfigUsesDefaults() {
-        let config = Config()
-        #expect(config.resolvedFont.pointSize == Config.defaults.fontSize!)
-    }
-
     @Test func partialConfigFallsBackIndividually() throws {
         let json = #"{"fontSize": 18}"#
         let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
@@ -40,13 +12,61 @@ struct ConfigTests {
         #expect(config.font == nil)
         #expect(config.resolvedFont.pointSize == 18)
         #expect(config.backgroundColor == nil)
-        _ = config.resolvedBackgroundColor // always returns a value, fallback guaranteed
+        _ = config.resolvedBackgroundColor
     }
 
-    @Test func shortcutDefaults() {
-        let config = Config()
-        let shortcut = config.resolvedShortcut
-        #expect(shortcut.keyCode == 49) // kVK_Space
-        #expect(shortcut.modifiers != 0)
+    @Test func resolvedColorsParseHex() throws {
+        let json = ##"{"backgroundColor": "#ff8000", "textColor": "#1e1e1e"}"##
+        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        let bg = config.resolvedBackgroundColor
+        #expect(abs(bg.redComponent - 1.0) < 0.01)
+        #expect(abs(bg.greenComponent - 0.502) < 0.01)
+        #expect(abs(bg.blueComponent - 0.0) < 0.01)
+        let fg = config.resolvedTextColor
+        #expect(abs(fg.redComponent - 0.118) < 0.01)
+    }
+
+    @Test func invalidHexFallsBackToDefault() throws {
+        let json = #"{"backgroundColor": "gg0000"}"#
+        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        let color = config.resolvedBackgroundColor
+        #expect(abs(color.redComponent - 0.118) < 0.01)
+    }
+
+    @Test func loadFromDataDecodesFields() {
+        let json = #"{"fontSize": 20, "shortcut": "cmd+shift+p"}"#
+        let config = Config.load(from: Data(json.utf8))
+        #expect(config.fontSize == 20)
+        #expect(config.shortcut == "cmd+shift+p")
+    }
+
+    @Test func loadFromInvalidDataReturnsEmpty() {
+        let config = Config.load(from: Data("not json".utf8))
+        #expect(config.fontSize == nil)
+        #expect(config.font == nil)
+    }
+}
+
+@Suite("Shortcut parsing")
+struct ShortcutTests {
+    @Test func defaultShortcutHasCorrectModifiers() {
+        let s = Config().resolvedShortcut
+        #expect(s.keyCode == 49) // kVK_Space
+        #expect(s.modifiers & UInt32(controlKey) != 0)
+        #expect(s.modifiers & UInt32(shiftKey) != 0)
+    }
+
+    @Test func cmdModifierParsed() throws {
+        let json = #"{"shortcut": "cmd+space"}"#
+        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        let s = config.resolvedShortcut
+        #expect(s.modifiers & UInt32(cmdKey) != 0)
+        #expect(s.modifiers & UInt32(controlKey) == 0)
+    }
+
+    @Test func unknownKeyFallsBackToSpace() throws {
+        let json = #"{"shortcut": "ctrl+zzznope"}"#
+        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        #expect(config.resolvedShortcut.keyCode == 49)
     }
 }

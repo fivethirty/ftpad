@@ -4,9 +4,9 @@ import ServiceManagement
 
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
-    private var padWindow: PadWindow!
-    private var statusBar: StatusBarController!
-    private var hotkey: HotkeyManager!
+    private var padWindow: PadWindow?
+    private var statusBar: StatusBarController?
+    private var hotkey: HotkeyManager?
     private var configWatcher: DispatchSourceFileSystemObject?
 
     func applicationDidFinishLaunching(_: Notification) {
@@ -14,11 +14,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         padWindow = PadWindow(config: config)
         statusBar = StatusBarController(
-            onToggle: { [weak self] in self?.padWindow.toggle() },
-            onShow: { [weak self] in self?.padWindow.show() }
+            onToggle: { [weak self] in self?.padWindow?.toggle() },
+            onShow: { [weak self] in self?.padWindow?.show() }
         )
         hotkey = HotkeyManager(config: config) { [weak self] in
-            Task { @MainActor in self?.padWindow.toggle() }
+            Task { @MainActor in self?.padWindow?.toggle() }
         }
 
         try? SMAppService.mainApp.register()
@@ -44,8 +44,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         source.setEventHandler { [weak self] in
             guard let self else { return }
             let config = Config.load()
-            self.padWindow.apply(config: config)
-            self.hotkey.update(config: config)
+            padWindow?.apply(config: config)
+            hotkey?.update(config: config)
         }
 
         source.setCancelHandler { close(fd) }
