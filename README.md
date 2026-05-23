@@ -1,12 +1,14 @@
 # ftpad
 
-A minimal menubar scratchpad for macOS.
+A very dumb notepad for macOS.
 
-![screenshot](screenshot.png) Press `Ctrl+Shift+Space` to show/hide. Content is saved automatically.
+## Use
+
+Press Ctrl+Shift+Space to show/hide. Type.
 
 ## Install
 
-Requires Xcode.
+Requires Xcode Command Line Tools (`xcode-select --install`).
 
 ```sh
 git clone https://github.com/fivethirty/ftpad
@@ -18,7 +20,7 @@ cp -r ftpad.app /Applications/
 
 ## Configuration
 
-Create `~/.config/ftpad/config.json` to customize. All fields are optional and fall back to defaults.
+Customize the following things in `~/.config/ftpad/config.json`.
 
 ```json
 {
@@ -32,5 +34,3 @@ Create `~/.config/ftpad/config.json` to customize. All fields are optional and f
   "height": 500
 }
 ```
-
-Changes are picked up automatically — no restart needed.
