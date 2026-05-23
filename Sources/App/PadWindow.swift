@@ -16,7 +16,7 @@ class PadWindow: NSObject, NSWindowDelegate {
             defer: false
         )
 
-        scrollView = NSScrollView(frame: .zero)
+        scrollView = NSScrollView(frame: window.contentView?.bounds ?? .zero)
         scrollView.autoresizingMask = [.width, .height]
         scrollView.hasVerticalScroller = true
         scrollView.scrollerKnobStyle = config.resolvedScrollerKnobStyle
