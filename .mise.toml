@@ -1,6 +1,6 @@
 [tools]
-swiftlint = "latest"
-swiftformat = "latest"
+swiftlint = "0.63.2"
+swiftformat = "0.61.1"
 
 [tasks.fmt]
 description = "Format Swift source files"

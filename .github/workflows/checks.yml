@@ -12,19 +12,22 @@ permissions:
   contents: read
 
 jobs:
+  format:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - run: brew install swiftformat@0.61.1
+      - run: swiftformat Sources Tests --lint
+
   lint:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: brew install swiftlint swiftformat
-      - name: swiftformat
-        run: swiftformat --lint Sources Tests
-      - name: swiftlint
-        run: swiftlint lint Sources Tests
+      - run: brew install swiftlint@0.63.2
+      - run: swiftlint lint Sources Tests
 
   test:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: swift test
-        run: swift test
+      - run: swift test
