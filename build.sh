@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
 
+SHA=$(git rev-parse --short HEAD)
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    SHA="$SHA-dirty"
+fi
+echo "let buildSHA = \"$SHA\"" > Sources/App/BuildInfo.swift
+
 swift build -c release
 
 mkdir -p ftpad.app/Contents/MacOS

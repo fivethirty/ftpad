@@ -16,14 +16,14 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: brew install swiftformat@0.61.1
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4
       - run: swiftformat Sources Tests --lint
 
   lint:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: brew install swiftlint@0.63.2
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4
       - run: swiftlint lint Sources Tests
 
   test:
