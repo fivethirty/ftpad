@@ -1,5 +1,7 @@
 # ftpad
 
+![checks](https://github.com/fivethirty/ftpad/actions/workflows/checks.yml/badge.svg)
+
 ![screenshot](screenshot.png)
 
 ## Use
