@@ -51,7 +51,7 @@ class StatusBarController: NSObject {
         let attrs: [NSAttributedString.Key: Any] = [.font: font]
         let str = "[~]" as NSString
         let size = str.size(withAttributes: attrs)
-        let image = NSImage(size: size, flipped: false) { rect in
+        let image = NSImage(size: size, flipped: false) { _ in
             str.draw(at: .zero, withAttributes: attrs)
             return true
         }

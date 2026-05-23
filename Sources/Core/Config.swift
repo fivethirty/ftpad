@@ -22,10 +22,6 @@ public struct Config: Codable, Sendable {
         height: 500
     )
 
-    public var resolvedScrollerKnobStyle: NSScroller.KnobStyle {
-        (lightScrollbar ?? true) ? .light : .dark
-    }
-
     public static func load() -> Config {
         let path = FileManager.default
             .homeDirectoryForCurrentUser
@@ -36,6 +32,10 @@ public struct Config: Codable, Sendable {
 
     public static func load(from data: Data) -> Config {
         (try? JSONDecoder().decode(Config.self, from: data)) ?? Config()
+    }
+
+    public var resolvedScrollerKnobStyle: NSScroller.KnobStyle {
+        (lightScrollbar ?? true) ? .light : .dark
     }
 
     public var resolvedFont: NSFont {
