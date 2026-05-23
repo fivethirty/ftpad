@@ -1,0 +1,102 @@
+import AppKit
+import Carbon.HIToolbox
+
+public struct Config: Codable, Sendable {
+    public var font: String?
+    public var fontSize: CGFloat?
+    public var backgroundColor: String?
+    public var textColor: String?
+    public var shortcut: String?
+    public var width: CGFloat?
+    public var height: CGFloat?
+
+    public static let defaults = Config(
+        font: "JetBrainsMonoNF-Regular",
+        fontSize: 14,
+        backgroundColor: "#1e1e1e",
+        textColor: "#d4d4d4",
+        shortcut: "ctrl+shift+space",
+        width: 700,
+        height: 500
+    )
+
+    public static func load() -> Config {
+        let path = FileManager.default
+            .homeDirectoryForCurrentUser
+            .appendingPathComponent(".config/ftpad/config.json")
+
+        guard let data = try? Data(contentsOf: path),
+              let config = try? JSONDecoder().decode(Config.self, from: data)
+        else {
+            return Config()
+        }
+        return config
+    }
+
+    public var resolvedFont: NSFont {
+        let name = font ?? Config.defaults.font!
+        let size = fontSize ?? Config.defaults.fontSize!
+        return NSFont(name: name, size: size)
+            ?? NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
+    }
+
+    public var resolvedBackgroundColor: NSColor {
+        NSColor(hex: backgroundColor ?? Config.defaults.backgroundColor!)
+            ?? NSColor(red: 0.118, green: 0.118, blue: 0.118, alpha: 1)
+    }
+
+    public var resolvedTextColor: NSColor {
+        NSColor(hex: textColor ?? Config.defaults.textColor!)
+            ?? NSColor(red: 0.831, green: 0.831, blue: 0.831, alpha: 1)
+    }
+
+    public var resolvedShortcut: (keyCode: UInt32, modifiers: UInt32) {
+        let parts = (shortcut ?? Config.defaults.shortcut!)
+            .lowercased()
+            .split(separator: "+")
+            .map(String.init)
+
+        var modifiers: UInt32 = 0
+        var keyCode = UInt32(kVK_Space)
+
+        for part in parts {
+            switch part {
+            case "ctrl": modifiers |= UInt32(controlKey)
+            case "shift": modifiers |= UInt32(shiftKey)
+            case "cmd": modifiers |= UInt32(cmdKey)
+            case "opt": modifiers |= UInt32(optionKey)
+            case "space": keyCode = UInt32(kVK_Space)
+            default:
+                if let code = keyCodeForCharacter(part) { keyCode = code }
+            }
+        }
+
+        return (keyCode, modifiers)
+    }
+}
+
+public func keyCodeForCharacter(_ character: String) -> UInt32? {
+    guard let source = TISCopyCurrentKeyboardInputSource()?.takeRetainedValue(),
+          let layoutData = TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData)
+    else { return nil }
+
+    let layout = unsafeBitCast(layoutData, to: CFData.self)
+    let ptr = unsafeBitCast(CFDataGetBytePtr(layout), to: UnsafePointer<UCKeyboardLayout>.self)
+
+    for code in 0 ..< 128 {
+        var deadKeys: UInt32 = 0
+        var chars = [UniChar](repeating: 0, count: 4)
+        var length = 0
+        UCKeyTranslate(
+            ptr, UInt16(code), UInt16(kUCKeyActionDisplay),
+            0, UInt32(LMGetKbdType()), OptionBits(kUCKeyTranslateNoDeadKeysBit),
+            &deadKeys, 4, &length, &chars
+        )
+        if length > 0,
+           String(utf16CodeUnits: chars, count: length).lowercased() == character
+        {
+            return UInt32(code)
+        }
+    }
+    return nil
+}

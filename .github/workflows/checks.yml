@@ -16,55 +16,15 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: "26"
-          cache: "npm"
-      - run: rustup toolchain install 1.95.0 --component clippy --no-self-update
-      - run: rustup default 1.95.0
-      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
-        with:
-          workspaces: src-tauri
-      - run: npm install
-      - name: oxlint
-        run: npm exec oxlint -- src/
-      - name: cargo clippy
-        run: cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
+      - run: brew install swiftlint swiftformat
+      - name: swiftformat
+        run: swiftformat --lint Sources Tests
+      - name: swiftlint
+        run: swiftlint lint Sources Tests
 
-  format:
+  test:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: "26"
-          cache: "npm"
-      - run: rustup toolchain install 1.95.0 --component rustfmt --no-self-update
-      - run: rustup default 1.95.0
-      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
-        with:
-          workspaces: src-tauri
-      - run: npm install
-      - name: oxfmt
-        run: npm exec oxfmt -- src/
-      - name: cargo fmt
-        run: cargo fmt --manifest-path src-tauri/Cargo.toml
-      - name: check diff
-        run: git diff --exit-code
-
-  build:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: "26"
-          cache: "npm"
-      - run: rustup toolchain install 1.95.0 --no-self-update
-      - run: rustup default 1.95.0
-      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
-        with:
-          workspaces: src-tauri
-      - run: npm install
-      - name: tauri build
-        run: npm run tauri build
+      - name: swift test
+        run: swift test

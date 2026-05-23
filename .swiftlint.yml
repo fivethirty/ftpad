@@ -1,0 +1,9 @@
+excluded:
+  - .build
+
+opt_in_rules:
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+
+disabled_rules:
+  - trailing_whitespace

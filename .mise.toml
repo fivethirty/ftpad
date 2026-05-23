@@ -1,17 +1,19 @@
 [tools]
-node = "26"
-rust = "1.95.0"
+swiftlint = "latest"
+swiftformat = "latest"
 
 [tasks.fmt]
-description = "Format all files"
-run = [
-  "npm exec oxfmt -- src/",
-  "cargo fmt --manifest-path src-tauri/Cargo.toml",
-]
+description = "Format Swift source files"
+run = "swiftformat Sources Tests"
 
 [tasks.lint]
-description = "Lint all files"
-run = [
-  "npm exec oxlint -- src/",
-  "cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings",
-]
+description = "Lint Swift source files"
+run = "swiftlint lint Sources Tests"
+
+[tasks.test]
+description = "Run tests"
+run = "swift test"
+
+[tasks.build]
+description = "Build and bundle the app"
+run = "sh build.sh"
