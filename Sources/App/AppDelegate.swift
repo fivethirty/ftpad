@@ -10,6 +10,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var configWatcher: DispatchSourceFileSystemObject?
 
     func applicationDidFinishLaunching(_: Notification) {
+        setupMainMenu()
+
         let config = Config.load()
 
         padWindow = PadWindow(config: config)
@@ -23,6 +25,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         try? SMAppService.mainApp.register()
         watchConfig()
+    }
+
+    private func setupMainMenu() {
+        let mainMenu = NSMenu()
+        let editMenuItem = NSMenuItem()
+        mainMenu.addItem(editMenuItem)
+
+        let editMenu = NSMenu(title: "Edit")
+        editMenuItem.submenu = editMenu
+
+        editMenu.addItem(withTitle: "Undo", action: #selector(UndoManager.undo), keyEquivalent: "z")
+        editMenu.addItem(withTitle: "Redo", action: #selector(UndoManager.redo), keyEquivalent: "Z")
+        editMenu.addItem(.separator())
+        editMenu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+
+        NSApp.mainMenu = mainMenu
     }
 
     private func watchConfig() {
