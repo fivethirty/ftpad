@@ -6,7 +6,7 @@
 
 ## Use
 
-Press Ctrl+Shift+Space to show/hide. Type.
+Press Ctrl+Shift+Space to show and hide. Type.
 
 ## Install
 
