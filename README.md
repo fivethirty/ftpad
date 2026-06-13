@@ -17,7 +17,7 @@ git clone https://github.com/fivethirty/ftpad
 cd ftpad
 git checkout $(git describe --tags --abbrev=0)
 sh build.sh
-cp -r ftpad.app /Applications/
+mv ftpad.app /Applications/
 ```
 
 ## Configuration
