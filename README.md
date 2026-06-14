@@ -2,6 +2,8 @@
 
 ![checks](https://github.com/fivethirty/ftpad/actions/workflows/checks.yml/badge.svg)
 
+ftpad is a no frills scratchpad app for macOS.
+
 ![screenshot](screenshot.png)
 
 ## Use
