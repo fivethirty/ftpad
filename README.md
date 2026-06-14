@@ -22,7 +22,7 @@ sh build.sh
 mv ftpad.app /Applications/
 ```
 
-## Configuration
+## Configure
 
 Customize the following things in `~/.config/ftpad/config.json`.
 
