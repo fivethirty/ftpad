@@ -6,6 +6,7 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
     SHA="$SHA-dirty"
 fi
 
+swift make_icon.swift
 swift build -c release
 
 mkdir -p ftpad.app/Contents/MacOS
