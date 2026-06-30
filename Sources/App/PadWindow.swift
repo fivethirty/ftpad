@@ -53,7 +53,6 @@ class PadWindow: NSObject, NSWindowDelegate {
         window.isMovable = false
         window.collectionBehavior = .moveToActiveSpace
         window.setFrameAutosaveName("")
-        window.center()
         window.delegate = self
         window.backgroundColor = config.resolvedBackgroundColor
         window.contentView?.addSubview(scrollView)
@@ -79,6 +78,7 @@ class PadWindow: NSObject, NSWindowDelegate {
     }
 
     func show() {
+        window.center()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         window.makeFirstResponder(textView)
