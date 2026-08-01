@@ -34,8 +34,8 @@ public struct Config: Codable, Sendable {
         (try? JSONDecoder().decode(Config.self, from: data)) ?? Config()
     }
 
-    public var resolvedScrollerKnobStyle: NSScroller.KnobStyle {
-        (lightScrollbar ?? true) ? .light : .dark
+    public var resolvedAppearance: NSAppearance? {
+        NSAppearance(named: (lightScrollbar ?? true) ? .darkAqua : .aqua)
     }
 
     public var resolvedFont: NSFont {

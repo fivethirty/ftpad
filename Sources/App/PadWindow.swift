@@ -19,7 +19,7 @@ class PadWindow: NSObject, NSWindowDelegate {
         scrollView = NSScrollView(frame: window.contentView?.bounds ?? .zero)
         scrollView.autoresizingMask = [.width, .height]
         scrollView.hasVerticalScroller = true
-        scrollView.scrollerKnobStyle = config.resolvedScrollerKnobStyle
+        scrollView.appearance = config.resolvedAppearance
         scrollView.drawsBackground = false
         scrollView.automaticallyAdjustsContentInsets = false
         scrollView.contentInsets = NSEdgeInsetsZero
@@ -55,6 +55,7 @@ class PadWindow: NSObject, NSWindowDelegate {
         window.setFrameAutosaveName("")
         window.delegate = self
         window.backgroundColor = config.resolvedBackgroundColor
+        window.appearance = config.resolvedAppearance
         window.contentView?.addSubview(scrollView)
 
         for btn in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] {
@@ -102,7 +103,8 @@ class PadWindow: NSObject, NSWindowDelegate {
             .foregroundColor: config.resolvedTextColor,
         ]
         window.backgroundColor = config.resolvedBackgroundColor
-        scrollView.scrollerKnobStyle = config.resolvedScrollerKnobStyle
+        window.appearance = config.resolvedAppearance
+        scrollView.appearance = config.resolvedAppearance
     }
 
     @objc private func textDidChange() {
